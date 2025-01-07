@@ -20,7 +20,7 @@ export default function Students() {
     return (
         <div className='w-full pl-64'>
             <h1 className='p-4 text-3xl'>Students</h1>
-            <div className="w-full p-6 relative overflow-x-auto">
+            <div className="w-full p-6 relative overflow-x-auto min-h-screen">
             <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
                 <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                     <tr>
