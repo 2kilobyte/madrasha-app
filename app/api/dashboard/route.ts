@@ -87,10 +87,10 @@ export async function GET() {
         const currentMonthUnpaidFee = currentMonthTotalFee - currentMonthPaidFee;
         
         //@ts-expect-error Reason: TypeScript incorrectly infers type due to library type mismatch
-        const paidStudents = parseInt(paidUnpaidStudentsResult[0].paidStudents);
+        const paidStudents = parseInt(paidUnpaidStudentsResult[0].paidStudents) || 0;
         
         //@ts-expect-error Reason: TypeScript incorrectly infers type due to library type mismatch
-        const unpaidStudents = parseInt(paidUnpaidStudentsResult[0].unpaidStudents);
+        const unpaidStudents = parseInt(paidUnpaidStudentsResult[0].unpaidStudents) || 0;
         
         
 

@@ -28,6 +28,8 @@ const DashboardChart:React.FC<DashboardChartProps> = ({ dashboardData :Dashboard
 
     console.log(DashboardData.monthlyOverview.map(eachData => eachData.paidFee));
     
+    const today = new Date();
+    const year = today.getFullYear();
     
     // Sample data
     const data = {
@@ -54,7 +56,7 @@ const DashboardChart:React.FC<DashboardChartProps> = ({ dashboardData :Dashboard
         plugins: {
           title: {
             display: true,
-            text: `Overview ${DashboardData.monthlyOverview[0].year}`,
+            text: `Overview ${year }`,
           },
         },
         scales: {
