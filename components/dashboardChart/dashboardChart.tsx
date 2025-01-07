@@ -24,9 +24,6 @@ ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, T
 
 const DashboardChart:React.FC<DashboardChartProps> = ({ dashboardData :DashboardData  }) => {
 
-    console.log({DashboardData});
-
-    console.log(DashboardData.monthlyOverview.map(eachData => eachData.paidFee));
     
     const today = new Date();
     const year = today.getFullYear();
