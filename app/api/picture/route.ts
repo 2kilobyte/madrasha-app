@@ -32,6 +32,9 @@ export async function POST(req: NextRequest) {
           const picPath = picFor === "student_pic" ? rows[0].src_picture : rows[0].src_birth;
           const deleteBlob = bucket.file(picPath)
 
+          console.log(deleteBlob);
+          
+
           deleteBlob.delete();
         }
 
@@ -43,6 +46,9 @@ export async function POST(req: NextRequest) {
     
         // Create a reference to the file in Firebase Storage
         const blob = bucket.file(filePath);
+
+        console.log(blob);
+        
         const blobStream = blob.createWriteStream({
           resumable: false,  // Disable resumable uploads for simplicity
         });
