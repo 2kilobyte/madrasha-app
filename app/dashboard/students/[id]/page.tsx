@@ -2,8 +2,10 @@
 
 import { FeesOut } from '@/models/fee'
 import { StudentDisplayList } from '@/models/student'
+import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
-import { FormEvent, useCallback, useEffect, useState } from 'react'
+import React, { FormEvent, useCallback, useEffect, useState } from 'react'
+
 
 
 export default function StudentDetails() {
@@ -15,8 +17,13 @@ export default function StudentDetails() {
     const [student, setStudent] = useState<StudentDisplayList | null>(null);
     const [allFees, setAllFees] = useState<FeesOut[]>([])
     const [isAddingFee, setIsAddingFee] = useState(false);
+    const [isAddingFile, setIsAddingFile] = useState(false);
     const [isAddingExamResult, setIsAddingExamResult] = useState(false);
-    const [monthName, setMonthName] = useState('January')
+    const [monthName, setMonthName] = useState('January');
+    const [documentFile, setDocumentFile] = useState<{fileFor: string, file: File | null}>({
+        file: null,
+        fileFor: "student_pic"
+    })
 
     const loadData = useCallback(async () => {
         try {
@@ -40,7 +47,39 @@ export default function StudentDetails() {
 
     useEffect(() => {
         loadData()
-    }, [loadData])
+    }, [loadData]);
+
+
+    async function documentOnSubmit(e: FormEvent) {
+        e.preventDefault();
+        
+        const formBody = new FormData()
+        formBody.append('file', documentFile.file as File)
+
+        if (!documentFile.fileFor) {
+            return 
+        }
+
+        try {
+            const response = await fetch(`/api/picture?id=${id}&pic_for=${documentFile.fileFor}`, {
+                method: 'POST',
+                body: formBody
+            })
+
+            if (response.ok) {
+                await loadData()
+                setDocumentFile({file: null, fileFor: 'student_pic'});
+                setIsAddingFile(false)
+            }
+
+        } catch (error) {
+            console.log(error);
+            
+        }
+    }
+
+
+    
 
 
     async function handleFeeSubmit(e: FormEvent) {
@@ -95,10 +134,12 @@ export default function StudentDetails() {
 
     
 
+    
+
     return (
         <>
         {
-            student && !isAddingFee && !isAddingExamResult? 
+            student && !isAddingFee && !isAddingExamResult && !isAddingFile? 
         
         <div className='w-full pl-64'>
             
@@ -114,10 +155,15 @@ export default function StudentDetails() {
                 
                 <div className='w-full flex flex-row gap-12'>
                     <div className='flex flex-col w-2/4'>
-                        <div className="w-48 h-48 bg-white border border-b-0 border-gray-200 rounded-t-lg shadow dark:bg-gray-800 dark:border-gray-700 flex items-center justify-center cursor-pointer">
-                            <svg className="w-32 h-32 text-gray-800 dark:text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
-                            <path fillRule="evenodd" d="M7.5 4.586A2 2 0 0 1 8.914 4h6.172a2 2 0 0 1 1.414.586L17.914 6H19a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h1.086L7.5 4.586ZM10 12a2 2 0 1 1 4 0 2 2 0 0 1-4 0Zm2-4a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z" clipRule="evenodd"/>
-                            </svg>
+                        <div onClick={() => setIsAddingFile(true)} className="w-48 h-48 bg-white border border-b-0 border-gray-200 rounded-t-lg shadow dark:bg-gray-800 dark:border-gray-700 flex items-center justify-center cursor-pointer">
+                            {
+                                student.picture ?
+                                    <Image className='w-full h-full' src={student.picture} alt={student.name} width={500} height={500} /> 
+                                :
+                                <svg className="w-32 h-32 text-gray-800 dark:text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                                <path fillRule="evenodd" d="M7.5 4.586A2 2 0 0 1 8.914 4h6.172a2 2 0 0 1 1.414.586L17.914 6H19a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h1.086L7.5 4.586ZM10 12a2 2 0 1 1 4 0 2 2 0 0 1-4 0Zm2-4a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z" clipRule="evenodd"/>
+                                </svg>
+                            }
                         </div>
                         <div className='w-full min-h-[400px] bg-white border border-gray-200 rounded-b-lg rounded-tr-lg shadow dark:bg-gray-800 dark:border-gray-700 p-4'>
                             <div className="w-full grid gap-4 mb-2 md:grid-cols-3">
@@ -264,11 +310,18 @@ export default function StudentDetails() {
                         </div>
                         </div>
                     </div>
-                    <div className='w-1/3 flex flex-col items-center justify-center border border-gray-700 rounded-lg bg-gray-800 cursor-pointer'>
-                        <svg className="w-48 h-48 text-gray-800 dark:text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
-                        <path fillRule="evenodd" d="M9 2.221V7H4.221a2 2 0 0 1 .365-.5L8.5 2.586A2 2 0 0 1 9 2.22ZM11 2v5a2 2 0 0 1-2 2H4v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2h-7Z" clipRule="evenodd"/>
-                        </svg>
-                        <h2 className='dark:text-gray-500 text-3xl mt-2'>Birth certificate</h2>
+                    <div className='w-1/3 flex flex-col items-center justify-center border border-gray-700 rounded-lg bg-gray-800 cursor-pointer' onClick={() => setIsAddingFile(true)}>
+                        {
+                            student.birth_cirtificate ?
+                            <Image src={student.birth_cirtificate} alt="Birth C" width={500} height={500} />
+                            :
+                            <>
+                                <svg className="w-48 h-48 text-gray-800 dark:text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                                <path fillRule="evenodd" d="M9 2.221V7H4.221a2 2 0 0 1 .365-.5L8.5 2.586A2 2 0 0 1 9 2.22ZM11 2v5a2 2 0 0 1-2 2H4v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2h-7Z" clipRule="evenodd"/>
+                                </svg>
+                                <h2 className='dark:text-gray-500 text-3xl mt-2'>Birth certificate</h2>
+                            </>
+                        }
                     </div>
                     <div className='w-1/6 flex flex-col items-end'>
                         <button 
@@ -281,7 +334,7 @@ export default function StudentDetails() {
                         </button>
 
                         <button
-                        onClick={() => setIsAddingExamResult(true)}
+                        onClick={() => setIsAddingExamResult(false)}
                         type="button" className="text-blue-700 border border-blue-700 hover:bg-blue-700 hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-sm p-2.5 text-center inline-flex items-center dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:focus:ring-blue-800 dark:hover:bg-blue-500 mt-4">
                             <svg
                             className="w-6 h-6 text-gray-800 dark:text-blue-500 dark:hover:text-white"
@@ -387,6 +440,38 @@ export default function StudentDetails() {
                 </div>
             </div>
         </div>
+        : student && isAddingFile ? 
+            <div className='w-full pl-64 h-screen flex items-center justify-center'>
+                <div className="dark:bg-gray-800 dark:border-gray-700 p-8 rounded-lg shadow w-[400px]">
+                    <form className='w-full flex flex-col' onSubmit={documentOnSubmit}>
+                        <div>
+                            <label className='block mb-2 text-sm font-medium text-gray-900 dark:text-gray-400' htmlFor="file">Upload document</label>
+                            <input onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                                const files = e.target.files
+                                if (files && files[0]) {
+                                    setDocumentFile(perv => ({...perv, file: files[0]}))
+                                }else{
+                                    setDocumentFile(perv => ({...perv, file: null}))
+                                }
+                            }} className='mb-4 p-4 border-dashed rounded-md border-gray-500 border-[1px]' id='file' placeholder='Select file' type="file" />
+                            <select className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 mb-6' name="fileFor" id="fileFor" onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setDocumentFile(prev => ({...prev, fileFor: e.target.value}))}>
+                                <option value="student_pic">Student Picture</option>
+                                <option value="student_bc">Student Birth Certificate</option>
+                            </select>
+                            <div className='mt-6'>
+                            <button 
+                                type="submit" 
+                                className="w-full text-blue-700 hover:text-white border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 dark:focus:ring-blue-800">Submit</button>
+                        </div>
+                        <div className='mt-2'>
+                            <button 
+                            onClick={() => setIsAddingFile(false)}
+                            type="button" className="w-full focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900">Cancel</button>
+                        </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
         : student&& isAddingFee ? 
             <div className='w-full pl-64 h-screen flex items-center justify-center'>
                 <div className="max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">

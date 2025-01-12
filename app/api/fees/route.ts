@@ -18,10 +18,24 @@ export async function POST(req: Request) {
     try {
         const data: Fees = await req.json() ;
         
+        const db = await pool.getConnection();
         
         const validationErrors = validateFeesData(data);
         if (validationErrors.length > 0) {
             return NextResponse.json({ errors: validationErrors }, { status: 400 });
+        }
+
+        const foundQuery = `SELECT * FROM fees WHERE month_name = ? AND year = ? AND user_id = ?`;
+
+        const [rows] = await db.execute(foundQuery, [
+            data.monthName,
+            data.year,
+            data.userId
+        ]);
+
+        //@ts-expect-error Reason: TypeScript incorrectly infers type due to library type mismatch
+        if (rows.length > 0) {
+            return NextResponse.json({ errors: ['Fee already paid'] }, { status: 400 });
         }
 
         const values = [
@@ -33,7 +47,6 @@ export async function POST(req: Request) {
 
         const query = `INSERT INTO fees (amount, month_name, year, user_id) VALUES (?, ?, ?, ?)`;
 
-        const db = await pool.getConnection();
         const [results, fields] = await db.execute(query, values);
         db.release();
 

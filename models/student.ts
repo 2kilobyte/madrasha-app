@@ -42,4 +42,8 @@ export interface StudentDisplayList {
     current_address?: string;
     class?: string;
     gender: string;
+    picture: string;
+    birth_cirtificate: string;
+    src_picture: string;
+    src_birth:string;
 }
